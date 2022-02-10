@@ -1,0 +1,64 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: nginx-pod
+  labels:
+    app: nginx
+spec:
+  initContainers:
+  - name: busybox
+    image: busybox
+    env:
+      - name: DUMMY_DATABASE_PASSWORD
+        valueFrom:
+          secretKeyRef:
+            name: db-password
+            key: DUMMY_DATABASE_PASSWORD
+    resources:
+      requests:
+        cpu: "50m"
+        memory: "50Mi"
+      limits:
+        cpu: "100m"
+        memory: "100Mi"
+    volumeMounts:
+      - mountPath: /html
+        name: share-volume
+    command: ["sh", '-c', 'echo $(DUMMY_DATABASE_PASSWORD) > /html/index.html']
+  containers:
+  - name: nginx-container
+    image: nginx:latest
+    ports:
+    - name: nginx-port
+      containerPort: 80
+    resources:
+      requests:
+        cpu: "50m"
+        memory: "50Mi"
+      limits:
+        cpu: "100m"
+        memory: "100Mi"
+    startupProbe:
+      httpGet:
+        port: 80
+        path: /
+      initialDelaySeconds: 10 
+      failureThreshold: 3
+      timeoutSeconds: 5
+      periodSeconds: 5
+    livenessProbe:
+      httpGet:
+        port: 80
+        path: /
+      failureThreshold: 3
+      timeoutSeconds: 5
+      periodSeconds: 5
+    readinessProbe:
+      tcpSocket:
+        port: 80
+    volumeMounts:
+    - mountPath: /usr/share/nginx/html/
+      name: share-volume
+  volumes:
+    - name: share-volume
+      emptyDir: {}
