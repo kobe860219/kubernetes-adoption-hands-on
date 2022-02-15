@@ -19,3 +19,25 @@ spec:
         - image: nginx:latest
           imagePullPolicy: Always
           name: nginx
+          ports:
+            - name: nginx-port
+              containerPort: 80
+          resources:
+            requests:
+              cpu: 200m
+              memory: 0.25Gi
+            limits:
+              cpu: 400m
+              memory: 0.5Gi
+          livenessProbe:
+            httpGet:
+              path: /
+              port: nginx-port
+            initialDelaySeconds: 15
+            timeoutSeconds: 30
+          readinessProbe:
+            httpGet:
+              path: /
+              port: nginx-port
+            initialDelaySeconds: 15
+            timeoutSeconds: 30
