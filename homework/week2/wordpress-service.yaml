@@ -3,9 +3,9 @@ kind: Service
 metadata:
   name: svc-wordpress
 spec:
-  selector:
-    app: wordpress
   ports:
   - port: 80
-    targetPort: wordpress-port
+    targetPort: http-port
     protocol: TCP
+  selector:
+    app: wordpress

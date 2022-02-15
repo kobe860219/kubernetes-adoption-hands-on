@@ -1,7 +1,7 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: deployment-wordpress
+  name: wordpress-deployment
 spec:
   replicas: 1
   selector:
@@ -13,21 +13,16 @@ spec:
         app: wordpress
     spec:
       containers:
-      - name: wordpress-pod
-        image: wordpress:latest
+      - name: wordpress
+        image: wordpress:4-php7.0
         ports:
-        - name: wordpress-port
+        - name: http-port
           containerPort: 80
         env:
-          - name: WORDPRESS_DB_USER
-            valueFrom:
-              secretKeyRef:
-                name: secret-mysql
-                key: WP_USER
           - name: WORDPRESS_DB_PASSWORD
             valueFrom:
               secretKeyRef:
-                name: secret-mysql
-                key: WP_USER_PASSWORD
+                name: mysql-secrets
+                key: db-password
           - name: WORDPRESS_DB_HOST
-            value: mysql:3306
+            value: svc-mysql
